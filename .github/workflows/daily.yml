@@ -2,7 +2,7 @@ name: Daily Mikarin
 
 on:
   schedule:
-    # 12:12 JST (03:12 UTC, previous day)
+    # 12:12 JST (03:12 UTC)
     - cron: '12 3 * * *'
   workflow_dispatch:
 

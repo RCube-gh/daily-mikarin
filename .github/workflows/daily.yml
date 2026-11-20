@@ -1,0 +1,43 @@
+name: Daily Mikarin
+
+on:
+  schedule:
+    # 12:12 JST (03:12 UTC, previous day)
+    - cron: '12 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-mikarin
+  cancel-in-progress: false
+
+jobs:
+  mikarin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Shout love for Mikarin
+        env:
+          GH_ACTOR: ${{ github.actor }}
+          GH_ACTOR_ID: ${{ github.actor_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          today="$(TZ=Asia/Tokyo date +%F)"
+          line="- ${today}: みかりん！！！！！！"
+          if grep -Fq -- "$line" MIKARIN.md; then
+            echo "Already celebrated Mikarin today: $today"
+            exit 0
+          fi
+          printf '%s\n' "$line" >> MIKARIN.md
+          git config user.name "$GH_ACTOR"
+          git config user.email "${GH_ACTOR_ID}+${GH_ACTOR}@users.noreply.github.com"
+          git add MIKARIN.md
+          git commit -m "Daily Mikarin: ${today}"
+          git push
